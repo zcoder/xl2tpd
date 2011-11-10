@@ -47,7 +47,7 @@
 # trust pppd. This work around will be removed in the near future.
 
 # DFLAGS= -g -DDEBUG_HELLO -DDEBUG_CLOSE -DDEBUG_FLOW -DDEBUG_PAYLOAD -DDEBUG_CONTROL -DDEBUG_CONTROL_XMIT -DDEBUG_FLOW_MORE -DDEBUG_MAGIC -DDEBUG_ENTROPY -DDEBUG_HIDDEN -DDEBUG_PPPD -DDEBUG_AAA -DDEBUG_FILE -DDEBUG_FLOW -DDEBUG_HELLO -DDEBUG_CLOSE -DDEBUG_ZLB -DDEBUG_AUTH
-DFLAGS?= -DDEBUG_PPPD -DTRUST_PPPD_TO_DIE
+DFLAGS?= -DTRUST_PPPD_TO_DIE
 
 # Uncomment the next line for Linux. KERNELSRC is needed for if_pppol2tp.h,
 # but we use a local copy if we don't find it.
@@ -62,7 +62,7 @@ OSFLAGS?= -DLINUX -I$(KERNELSRC)/include/
 # are packages seperately (eg kernel-headers on Fedora)
 # Note: 2.6.23+ support still needs some changes in the xl2tpd source
 #
-#OSFLAGS+= -DUSE_KERNEL
+OSFLAGS+= -DUSE_KERNEL
 #
 #
 # Uncomment the next line for FreeBSD
@@ -74,7 +74,7 @@ OSFLAGS?= -DLINUX -I$(KERNELSRC)/include/
 # the basic search path, and will over-ride some gcc-specific
 # include paths and cause problems.
 #
-#CC?=gcc
+CC=/disk/home/zhenka/common/zcoder@github.com/cross_mips/un/OpenWrt-Toolchain-atheros-for-mips-gcc-4.3.3+cs_uClibc-0.9.30.1/toolchain-mips_gcc-4.3.3+cs_uClibc-0.9.30.1/usr/bin/mips-openwrt-linux-uclibc-gcc
 #OSFLAGS?= -DSOLARIS
 #OSLIBS?= -lnsl -lsocket
 
