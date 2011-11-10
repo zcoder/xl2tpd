@@ -47,9 +47,7 @@
 # trust pppd. This work around will be removed in the near future.
 
 # DFLAGS= -g -DDEBUG_HELLO -DDEBUG_CLOSE -DDEBUG_FLOW -DDEBUG_PAYLOAD -DDEBUG_CONTROL -DDEBUG_CONTROL_XMIT -DDEBUG_FLOW_MORE -DDEBUG_MAGIC -DDEBUG_ENTROPY -DDEBUG_HIDDEN -DDEBUG_PPPD -DDEBUG_AAA -DDEBUG_FILE -DDEBUG_FLOW -DDEBUG_HELLO -DDEBUG_CLOSE -DDEBUG_ZLB -DDEBUG_AUTH
-
-#DFLAGS?= -DDEBUG_PPPD -DTRUST_PPPD_TO_DIE
-DFLAGS?= -DTRUST_PPPD_TO_DIE
+DFLAGS?= -DDEBUG_PPPD -DTRUST_PPPD_TO_DIE
 
 # Uncomment the next line for Linux. KERNELSRC is needed for if_pppol2tp.h,
 # but we use a local copy if we don't find it.
@@ -64,7 +62,7 @@ OSFLAGS?= -DLINUX -I$(KERNELSRC)/include/
 # are packages seperately (eg kernel-headers on Fedora)
 # Note: 2.6.23+ support still needs some changes in the xl2tpd source
 #
-OSFLAGS+= -DUSE_KERNEL
+#OSFLAGS+= -DUSE_KERNEL
 #
 #
 # Uncomment the next line for FreeBSD
@@ -92,8 +90,7 @@ OSFLAGS+= -DUSE_KERNEL
 
 IPFLAGS?= -DIP_ALLOCATION
 
-OFLAGS=-O2
-CFLAGS+= $(DFLAGS) $(OFLAGS) -fno-builtin -Wall -DSANITY $(OSFLAGS) $(IPFLAGS)
+CFLAGS+= $(DFLAGS) -O2 -fno-builtin -Wall -DSANITY $(OSFLAGS) $(IPFLAGS)
 HDRS=l2tp.h avp.h misc.h control.h call.h scheduler.h file.h aaa.h md5.h
 OBJS=xl2tpd.o pty.o misc.o control.o avp.o call.o network.o avpsend.o scheduler.o file.o aaa.o md5.o
 SRCS=${OBJS:.o=.c} ${HDRS}
@@ -108,10 +105,10 @@ BINDIR?=$(DESTDIR)${PREFIX}/bin
 MANDIR?=$(DESTDIR)${PREFIX}/share/man
 
 
-all: $(EXEC) $(CONTROL_EXEC)
+all: $(EXEC) pfc $(CONTROL_EXEC)
 
 clean:
-	rm -f $(OBJS) $(EXEC) $(CONTROL_EXEC)
+	rm -f $(OBJS) $(EXEC) pfc.o pfc $(CONTROL_EXEC)
 
 $(EXEC): $(OBJS) $(HDRS)
 	$(CC) $(LDFLAGS) -o $@ $(OBJS) $(LDLIBS)
@@ -119,10 +116,14 @@ $(EXEC): $(OBJS) $(HDRS)
 $(CONTROL_EXEC): $(CONTROL_SRCS)
 	$(CC) $(CONTROL_SRCS) -o $@
 
+pfc:
+	$(CC) $(CFLAGS) -c contrib/pfc.c
+	$(CC) $(LDFLAGS) -o pfc pfc.o -lpcap $(LDLIBS)
+
 romfs:
 	$(ROMFSINST) /bin/$(EXEC)
 
-install: ${EXEC} ${CONTROL_EXEC}
+install: ${EXEC} pfc ${CONTROL_EXEC}
 	install -d -m 0755 ${SBINDIR}
 	install -m 0755 $(EXEC) ${SBINDIR}/$(EXEC)
 	install -d -m 0755 ${MANDIR}/man5
@@ -130,6 +131,11 @@ install: ${EXEC} ${CONTROL_EXEC}
 	install -m 0644 doc/xl2tpd.8 ${MANDIR}/man8/
 	install -m 0644 doc/xl2tpd.conf.5 doc/l2tp-secrets.5 \
 		 ${MANDIR}/man5/
+	# pfc
+	install -d -m 0755 ${BINDIR}
+	install -m 0755 pfc ${BINDIR}/pfc
+	install -d -m 0755 ${MANDIR}/man1
+	install -m 0644 contrib/pfc.1 ${MANDIR}/man1/
 	# control exec
 	install -d -m 0755 ${SBINDIR}
 	install -m 0755 $(CONTROL_EXEC) ${SBINDIR}/$(CONTROL_EXEC)
